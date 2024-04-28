@@ -494,6 +494,9 @@ app.use('/api/speech', require('./src/endpoints/speech').router);
 //     ('127.0.0.1') +
 //     (':' + server_port),
 // );
+const port = 7869;
+    // listen on port
+app.listen(port, () => console.info(`Listening on port ${port}`))
 
 const setupTasks = async function () {
     const version = await getVersion();
@@ -539,11 +542,7 @@ const setupTasks = async function () {
         exitProcess();
     });
 
-    const port = 7869;
-    app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
-    }); 
-    console.log('Launching...');
+    
 
     // if (autorun) open(autorunUrl.toString());
 
