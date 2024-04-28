@@ -539,7 +539,7 @@ const setupTasks = async function () {
         exitProcess();
     });
 
-    const port = 7860;
+    const port = 7869;
     app.listen(port, () => {
         console.log(`Server is running on port ${port}`);
     }); 
