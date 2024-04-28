@@ -103,6 +103,28 @@ const serverDirectory = __dirname;
 process.chdir(serverDirectory);
 
 const app = express();
+let defautlPassword = "loc";
+
+app.post('/login', (req, res) => {
+    const { password } = req.body;
+
+    if (defautlPassword === password) {
+        res.json({ success: true });
+    } else {
+        res.status(400).end();
+    }
+});
+
+app.post('/change-password', (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+
+    if (defautlPassword === oldPassword) {
+        defautlPassword = newPassword;
+        res.json({ success: true });
+    } else {
+        res.status(400).end();
+    }
+});    
 app.use(compression());
 app.use(responseTime());
 
@@ -461,17 +483,17 @@ app.use('/api/backends/scale-alt', require('./src/endpoints/backends/scale-alt')
 // Speech (text-to-speech and speech-to-text)
 app.use('/api/speech', require('./src/endpoints/speech').router);
 
-const tavernUrl = new URL(
-    (cliArguments.ssl ? 'https://' : 'http://') +
-    (listen ? '0.0.0.0' : '127.0.0.1') +
-    (':' + server_port),
-);
+// const tavernUrl = new URL(
+//     (cliArguments.ssl ? 'https://' : 'http://') +
+//     (listen ? '0.0.0.0' : '127.0.0.1') +
+//     (':' + server_port),
+// );
 
-const autorunUrl = new URL(
-    (cliArguments.ssl ? 'https://' : 'http://') +
-    ('127.0.0.1') +
-    (':' + server_port),
-);
+// const autorunUrl = new URL(
+//     (cliArguments.ssl ? 'https://' : 'http://') +
+//     ('127.0.0.1') +
+//     (':' + server_port),
+// );
 
 const setupTasks = async function () {
     const version = await getVersion();
@@ -517,25 +539,28 @@ const setupTasks = async function () {
         exitProcess();
     });
 
-
+    const port = 7860;
+    app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+    }); 
     console.log('Launching...');
 
-    if (autorun) open(autorunUrl.toString());
+    // if (autorun) open(autorunUrl.toString());
 
-    setWindowTitle('SillyTavern WebServer');
+    // setWindowTitle('SillyTavern WebServer');
 
-    console.log(color.green('SillyTavern is listening on: ' + tavernUrl));
+    // console.log(color.green('SillyTavern is listening on: ' + tavernUrl));
 
-    if (listen) {
-        console.log('\n0.0.0.0 means SillyTavern is listening on all network interfaces (Wi-Fi, LAN, localhost). If you want to limit it only to internal localhost (127.0.0.1), change the setting in config.yaml to "listen: false". Check "access.log" file in the SillyTavern directory if you want to inspect incoming connections.\n');
-    }
+    // if (listen) {
+    //     console.log('\n0.0.0.0 means SillyTavern is listening on all network interfaces (Wi-Fi, LAN, localhost). If you want to limit it only to internal localhost (127.0.0.1), change the setting in config.yaml to "listen: false". Check "access.log" file in the SillyTavern directory if you want to inspect incoming connections.\n');
+    // }
 
-    if (basicAuthMode) {
-        const basicAuthUser = getConfigValue('basicAuthUser', {});
-        if (!basicAuthUser?.username || !basicAuthUser?.password) {
-            console.warn(color.yellow('Basic Authentication is enabled, but username or password is not set or empty!'));
-        }
-    }
+    // if (basicAuthMode) {
+    //     const basicAuthUser = getConfigValue('basicAuthUser', {});
+    //     if (!basicAuthUser?.username || !basicAuthUser?.password) {
+    //         console.warn(color.yellow('Basic Authentication is enabled, but username or password is not set or empty!'));
+    //     }
+    // }
 
 };
 
@@ -578,24 +603,24 @@ function setWindowTitle(title) {
     }
 }
 
-if (cliArguments.ssl) {
-    https.createServer(
-        {
-            cert: fs.readFileSync(cliArguments.certPath),
-            key: fs.readFileSync(cliArguments.keyPath),
-        }, app)
-        .listen(
-            Number(tavernUrl.port) || 443,
-            tavernUrl.hostname,
-            setupTasks,
-        );
-} else {
-    http.createServer(app).listen(
-        Number(tavernUrl.port) || 80,
-        tavernUrl.hostname,
-        setupTasks,
-    );
-}
+// if (cliArguments.ssl) {
+//     https.createServer(
+//         {
+//             cert: fs.readFileSync(cliArguments.certPath),
+//             key: fs.readFileSync(cliArguments.keyPath),
+//         }, app)
+//         .listen(
+//             Number(tavernUrl.port) || 443,
+//             tavernUrl.hostname,
+//             setupTasks,
+//         );
+// } else {
+//     http.createServer(app).listen(
+//         Number(tavernUrl.port) || 80,
+//         tavernUrl.hostname,
+//         setupTasks,
+//     );
+// }
 
 function ensurePublicDirectoriesExist() {
     for (const dir of Object.values(DIRECTORIES)) {
